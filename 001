@@ -7,6 +7,11 @@ import json
 from datetime import datetime
 import requests
 
+# Tambahkan definisi ini di awal kode GitHub Anda
+def fetch_and_decode_raw_content(url):
+    # Implementasi Anda untuk mengambil dan mendecode konten raw
+    pass
+
 raw_url = "https://habibipro.xyz/api/app?json=8b57739c27c921418d88"
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
