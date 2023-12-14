@@ -7,10 +7,14 @@ import json
 from datetime import datetime
 import requests
 
-# Tambahkan definisi ini di awal kode GitHub Anda
 def fetch_and_decode_raw_content(url):
-    # Implementasi Anda untuk mengambil dan mendecode konten raw
-    pass
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.content
+    else:
+        # Handle error, misalnya:
+        print(f"Failed to fetch content from {url}")
+        return None
 
 raw_url = "https://habibipro.xyz/api/app?json=8b57739c27c921418d88"
 headers = {
