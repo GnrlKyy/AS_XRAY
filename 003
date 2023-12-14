@@ -1,208 +1,27 @@
-#rcode same code
-import os
-import base64
-import hashlib
-from Crypto.Cipher import AES
-import json
-from datetime import datetime
-import requests
+def dec(lst):
+    data = []
+    nums = []
+    lst = lst.split('.')
 
-# Tambahkan definisi ini di awal kode GitHub Anda
-def fetch_and_decode_raw_content(url):
-    # Implementasi Anda untuk mengambil dan mendecode konten raw
-    pass
+    for n in range(0, len(lst), 2):
+        data.append(int(lst[n]))
 
-raw_url = "https://habibipro.xyz/api/app?json=8b57739c27c921418d88"
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-    'Referer': 'https://habibipro.xyz'  # Add the appropriate Referer URL
-}
+    for m in range(1, len(lst), 2):
+        nums.append(int(lst[m]))
 
-class AESCrypt:
-    AES_MODE = AES.MODE_CBC
-    AES_BLOCK_SIZE = 16
-    HASH_ALGORITHM = 'SHA-256'
-    IV = b'\x00' * AES_BLOCK_SIZE
+    result = ''
+    for x in range(len(data)):
+        result += chr((data[x] - len(data) >> (nums[x] - len(data))) & 255)
 
-    @staticmethod
-    def generate_key(password):
-        hashed_key = hashlib.sha256(password.encode()).digest()
-        return hashed_key
+    return result
 
-    @staticmethod
-    def pad_message(message):
-        padding_length = AESCrypt.AES_BLOCK_SIZE - (len(message) % AESCrypt.AES_BLOCK_SIZE)
-        padded_message = message + (chr() * padding_length)
-        return padded_message
 
-    @staticmethod
-    def unpad_message(padded_message):
-        padding_length = padded_message[-1]
-        return padded_message[:len(padded_message) - padding_length]
+enctext = input('Input Encrypted Text:\n=> ').split(':')
 
-    @staticmethod
-    def decrypt(password, encoded_ciphertext):
-        key = AESCrypt.generate_key(password)
-        cipher = AES.new(key, AES.MODE_CBC, AESCrypt.IV)
-        ciphertext = base64.b64decode(encoded_ciphertext)
-        decrypted_message = cipher.decrypt(ciphertext)
-        unpadded_message = AESCrypt.unpad_message(decrypted_message)
-        return unpadded_message.decode()
-
-def fetch_and_decode_raw_content(raw_link):
-    try:
-        response = requests.get(raw_link, headers=headers)
-        response.raise_for_status()  # Raise an HTTPError for bad responses
-        return response.text
-    except requests.RequestException as e:
-        print(f"Error fetching raw content: {e}")
-        return None
-
-def decrypt(cipher):
-    if not cipher:
-        return None
-
-    cipher_bytes = list(cipher.encode("utf-8"))
-    length = len(cipher_bytes)
-
-    while True:
-        i = length - 1
-        if cipher_bytes[i] != 61:
-            break
-        length = i
-
-    length2 = int(length - (len(cipher_bytes) / 4))
-
-    barr = [0] * length2
-    for i2 in range(len(cipher_bytes)):
-        if cipher_bytes[i2] == 61:
-            cipher_bytes[i2] = 0
-        elif cipher_bytes[i2] == 47:
-            cipher_bytes[i2] = 63
-        elif cipher_bytes[i2] == 43:
-            cipher_bytes[i2] = 62
-        elif 48 <= cipher_bytes[i2] <= 57:
-            cipher_bytes[i2] = (cipher_bytes[i2] + 4) & 255
-        elif 97 <= cipher_bytes[i2] <= 122:
-            cipher_bytes[i2] = (cipher_bytes[i2] - 71) & 255
-        elif 65 <= cipher_bytes[i2] <= 90:
-            cipher_bytes[i2] = (cipher_bytes[i2] - 65) & 255
-
-    i3 = 0
-    i4 = 0
-    while i3 < length2 - 2:
-        i5 = i4 + 1
-        barr[i3] = (((cipher_bytes[i4] << 2) & 255) | ((cipher_bytes[i5] >> 4) & 3))
-        i6 = i4 + 2
-        barr[i3 + 1] = (((cipher_bytes[i5] << 4) & 255) | ((cipher_bytes[i6] >> 2) & 15)) & 255
-        barr[i3 + 2] = (((cipher_bytes[i6] << 6) & 255) | (cipher_bytes[i4 + 3] & 63)) & 255
-        i4 += 4
-        i3 += 3
-
-    if i3 < length2:
-        barr[i3] = (((cipher_bytes[i4] << 2) & 255) | ((cipher_bytes[i4 + 1] >> 4) & 3)) & 255
-
-    i7 = i3 + 1
-    if i7 < length2:
-        barr[i7] = (((cipher_bytes[i4 + 2] >> 2) & 15) | ((cipher_bytes[i4 + 1] << 4) & 255)) & 255
-
-    result = [0] * length2
-    for i8 in range(length2):
-        result[i8] = (barr[i8] + 23) & 255
-
-    try:
-        decoded_string = bytes(result).decode("utf-8")
-        return decoded_string
-    except UnicodeDecodeError:
-        return None
-        
-def add_info_to_data(data):
-    info_data = {
-        "[</>] [SnifferBy]": "EnzoZxx",
-        "[</>] [Telegram]": "https://t.me/XDecrytorId",
-        "[</>] [Tools]": "Python Decrypt x Keep Json 1.0.3 ©"
-    }
-    data["Info"] = info_data                
-
-def main():
-    password = "izphvpn@123?!"
-
-    try:
-        # Fetch and decode raw content
-        decrypted_text = fetch_and_decode_raw_content(raw_url)
-
-        # Check if decryption is successful before proceeding
-        if decrypted_text:
-            encrypted_data = json.loads(decrypt(decrypted_text))
-
-            # Decrypt server fields            
-            for server in encrypted_data.get("Servers", []):
-                server["ServerIPHost"] = AESCrypt.decrypt(password, server.get("ServerIPHost", ""))
-                server["CloudfrontDNS"] = AESCrypt.decrypt(password, server.get("CloudfrontDNS", ""))
-                server["ServerHTTP"] = AESCrypt.decrypt(password, server.get("ServerHTTP", ""))
-                server["Username"] = AESCrypt.decrypt(password, server.get("Username", ""))
-                server["Password"] = AESCrypt.decrypt(password, server.get("Password", ""))
-                
-                if "V2Ray" in server and "V2RayConfig" in server["V2Ray"]:
-                    server["V2Ray"]["V2RayConfig"] = AESCrypt.decrypt(password, server["V2Ray"]["V2RayConfig"])                                
-                
-            # Decrypt network fields
-            for network in encrypted_data.get("Networks", []):
-                network["Payload"] = AESCrypt.decrypt(password, network.get("Payload", ""))
-                network["ProxySettings"]["Squid"] = AESCrypt.decrypt(password, network["ProxySettings"].get("Squid", ""))
-                sni_host = network.get("SNIHost")
-                if sni_host:
-                    network["SNIHost"] = AESCrypt.decrypt(password, sni_host
-            )                
-                dns_resolver = network.get("DNSResolver")
-                if dns_resolver:
-                    network["DNSResolver"] = AESCrypt.decrypt(password, dns_resolver
-            )
-
-            # Decrypt SSL network fields
-            for sslnetwork in encrypted_data.get("SSLNetworks", []):
-                sslnetwork["SNIHost"] = AESCrypt.decrypt(password, sslnetwork.get("SNIHost", ""))
-                sslnetwork["Payload"] = AESCrypt.decrypt(password, sslnetwork.get("Payload", ""))
-                sslnetwork["ProxySettings"]["Squid"] = AESCrypt.decrypt(password, sslnetwork["ProxySettings"].get("Squid", ""))
-
-            # Decrypt common fields
-            encrypted_data["Username"] = AESCrypt.decrypt(password, encrypted_data.get("Username", ""))
-            encrypted_data["Password"] = AESCrypt.decrypt(password, encrypted_data.get("Password", ""))
-
-            # Create output directory if not exists
-            folder_name = "/sdcard/EnzoSniffer/"
-            os.makedirs(folder_name, exist_ok=True)
-
-            # Define output file path
-            file_path = os.path.join(folder_name, "[SRT MAX PRO]SnifferBY_ENzoZxx.txt")
-            add_info_to_data(encrypted_data)
-            output_data = {"Info": encrypted_data.pop("Info"), **encrypted_data}
-            
-
-            # Write decrypted data to the output file
-            with open(file_path, "w") as output_file:
-                json.dump(output_data, output_file, indent=4, ensure_ascii=False)
-
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            number_of_entries = sum(len(encrypted_data[key]) for key in ["Servers", "Networks", "SSLNetworks"])
-
-            success_message = (
-                f"* Decryption Successful for {number_of_entries} entries! Data SRT MAX PRO\n"
-                f"* Timestamp: {timestamp}\n"
-                f"* SnifferBy: EnzoZxx\n"
-                f"* =========================================="
-            )
-            print(success_message)
-
-        else:
-            print("Error: Decryption failed or no content retrieved.")
-
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
-    except Exception as e:
-        print(f"Error: {e}")
-
-if __name__ == "__main__":
-    main()
-    
-    
+if len(enctext) == 2:
+    user = dec(enctext[0])
+    passwd = dec(enctext[1])
+    print("HcDecode By Enzo (c) 2023\n=========================")
+    print('Username: {0}\nPassword: {1}'.format(user, passwd))
+else:
+    print("Incorrect input format. Make sure to use the format: username:password")
