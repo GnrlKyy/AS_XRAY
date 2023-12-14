@@ -7,15 +7,6 @@ import json
 from datetime import datetime
 import requests
 
-def fetch_and_decode_raw_content(url):
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        return response.content
-    else:
-        # Handle error, misalnya:
-        print(f"Failed to fetch content from {url}")
-        return None
-
 raw_url = "https://habibipro.xyz/api/app?json=8b57739c27c921418d88"
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -53,13 +44,12 @@ class AESCrypt:
         unpadded_message = AESCrypt.unpad_message(decrypted_message)
         return unpadded_message.decode()
 
-def fetch_and_decode_raw_content(raw_link):
-    try:
-        response = requests.get(raw_link, headers=headers)
-        response.raise_for_status()  # Raise an HTTPError for bad responses
+def fetch_and_decode_raw_content(url):
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
         return response.text
-    except requests.RequestException as e:
-        print(f"Error fetching raw content: {e}")
+    else:
+        print(f"Failed to fetch content from {url}")
         return None
 
 def decrypt(cipher):
